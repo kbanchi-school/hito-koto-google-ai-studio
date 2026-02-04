@@ -1,0 +1,8 @@
+{
+  "name": "hito-koto",
+  "description": "A minimal, community-focused job board featuring vertical video content and streamlined application processes without the need for user accounts.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone"
+  ]
+}
