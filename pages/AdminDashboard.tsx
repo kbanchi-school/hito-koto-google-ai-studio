@@ -6,6 +6,7 @@ import { MOCK_JOBS } from '../constants';
 
 type Tab = 'analytics' | 'master' | 'article' | 'event' | 'display';
 type Period = 'weekly' | 'monthly' | 'yearly' | 'total';
+type PreviewDevice = 'pc' | 'mobile';
 
 interface AppEvent {
   id: string;
@@ -38,6 +39,7 @@ const AdminDashboard: React.FC = () => {
 
   const [isArticleModalOpen, setIsArticleModalOpen] = useState(false);
   const [isPreviewMode, setIsPreviewMode] = useState(false);
+  const [previewDevice, setPreviewDevice] = useState<PreviewDevice>('mobile');
   const [editingJob, setEditingJob] = useState<Job | null>(null);
   const [newCatName, setNewCatName] = useState('');
   const [showSaveFeedback, setShowSaveFeedback] = useState(false);
@@ -251,7 +253,7 @@ const AdminDashboard: React.FC = () => {
                         onClick={() => setIsPreviewMode(!isPreviewMode)}
                         className={`px-6 py-2 rounded-full text-xs font-bold transition-all flex items-center space-x-2 border shadow-sm ${isPreviewMode ? 'bg-red-500 text-white border-red-500' : 'bg-white text-gray-900 border-gray-200 hover:bg-gray-50'}`}
                       >
-                        <span>{isPreviewMode ? '編集画面に戻る' : '実機プレビュー'}</span>
+                        <span>{isPreviewMode ? '編集画面に戻る' : 'プレビュー'}</span>
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
                       </button>
                       <button onClick={() => setIsArticleModalOpen(false)} className="p-2 text-gray-400 hover:text-gray-900">
@@ -262,23 +264,85 @@ const AdminDashboard: React.FC = () => {
 
                   <div className="flex-1 overflow-y-auto bg-white">
                     {isPreviewMode ? (
-                      <div className="max-w-md mx-auto my-8 border-[12px] border-gray-900 rounded-[3rem] overflow-hidden shadow-2xl bg-[#f8f9fa] relative aspect-[9/19]">
-                        <div className="absolute top-0 w-full h-8 bg-black"></div>
-                        <div className="h-full overflow-y-auto bg-white pt-8">
-                          <div className="p-6 space-y-12">
-                            <div className="flex flex-wrap justify-center gap-1 mb-4">
-                              {editingJob.categories.map(c => <span key={c} className="px-2 py-0.5 bg-gray-100 text-gray-400 text-[8px] font-bold rounded-full">{c}</span>)}
-                            </div>
-                            <div className="prose prose-sm text-center" dangerouslySetInnerHTML={{ __html: editingJob.titleMessage }} />
-                            {editingJob.sections.filter(s => s.mediaType !== 'none').map((s, i) => (
-                              <div key={i} className="space-y-6">
-                                <div className="aspect-[9/16] bg-black rounded-3xl overflow-hidden">
-                                  {s.mediaType === 'video' ? <video src={s.mediaData} muted autoPlay loop className="w-full h-full object-cover" /> : <img src={s.mediaData} className="w-full h-full object-cover" />}
-                                </div>
-                                <div className="prose prose-sm" dangerouslySetInnerHTML={{ __html: s.articleContent }} />
+                      <div className="flex flex-col h-full bg-gray-100">
+                        {/* デバイス切り替えスイッチ */}
+                        <div className="flex justify-center p-4 bg-white border-b border-gray-100 space-x-4">
+                          <button onClick={() => setPreviewDevice('mobile')} className={`flex items-center space-x-2 px-6 py-2 rounded-full text-xs font-bold transition-all ${previewDevice === 'mobile' ? 'bg-gray-900 text-white' : 'bg-gray-100 text-gray-400 hover:bg-gray-200'}`}>
+                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" /></svg>
+                             <span>Mobile</span>
+                          </button>
+                          <button onClick={() => setPreviewDevice('pc')} className={`flex items-center space-x-2 px-6 py-2 rounded-full text-xs font-bold transition-all ${previewDevice === 'pc' ? 'bg-gray-900 text-white' : 'bg-gray-100 text-gray-400 hover:bg-gray-200'}`}>
+                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
+                             <span>Desktop</span>
+                          </button>
+                        </div>
+                        
+                        <div className="flex-1 overflow-y-auto p-8">
+                          {previewDevice === 'mobile' ? (
+                            <div className="max-w-[375px] mx-auto border-[12px] border-gray-900 rounded-[3rem] overflow-hidden shadow-2xl bg-white relative aspect-[9/19]">
+                              <div className="absolute top-0 w-full h-8 bg-black z-10 flex items-center justify-center">
+                                <div className="w-20 h-4 bg-gray-800 rounded-full"></div>
                               </div>
-                            ))}
-                          </div>
+                              <div className="h-full overflow-y-auto pt-10 pb-20">
+                                <div className="p-6 space-y-12">
+                                  <div className="flex flex-wrap justify-center gap-1">
+                                    {editingJob.categories.map(c => <span key={c} className="px-2 py-0.5 bg-gray-100 text-gray-400 text-[8px] font-bold rounded-full">{c}</span>)}
+                                  </div>
+                                  <div className="prose prose-sm text-center" dangerouslySetInnerHTML={{ __html: editingJob.titleMessage }} />
+                                  {editingJob.sections.filter(s => s.mediaType !== 'none').map((s, i) => (
+                                    <div key={i} className="space-y-6">
+                                      <div className="aspect-[9/16] bg-black rounded-3xl overflow-hidden shadow-lg">
+                                        {s.mediaType === 'video' ? <video src={s.mediaData} muted autoPlay loop className="w-full h-full object-cover" /> : <img src={s.mediaData} className="w-full h-full object-cover" />}
+                                      </div>
+                                      <div className="prose prose-sm text-gray-600 leading-relaxed" dangerouslySetInnerHTML={{ __html: s.articleContent }} />
+                                    </div>
+                                  ))}
+                                  <div className="p-4 bg-gray-50 rounded-2xl border border-gray-100">
+                                    <h4 className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-4">Requirements</h4>
+                                    <div className="prose prose-xs text-gray-600" dangerouslySetInnerHTML={{ __html: editingJob.requirements }} />
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="max-w-4xl mx-auto bg-white shadow-2xl rounded-2xl overflow-hidden min-h-full">
+                               <div className="p-12 space-y-20">
+                                  <section className="text-center">
+                                    <div className="flex flex-wrap justify-center gap-2 mb-8">
+                                      {editingJob.categories.map(c => <span key={c} className="px-3 py-1 bg-gray-100 text-gray-400 text-[10px] font-bold rounded-full uppercase tracking-widest">{c}</span>)}
+                                    </div>
+                                    <div className="prose prose-lg max-w-none text-gray-900" dangerouslySetInnerHTML={{ __html: editingJob.titleMessage }} />
+                                    <p className="mt-4 text-gray-400 font-medium">{editingJob.company}</p>
+                                  </section>
+                                  
+                                  {editingJob.sections.filter(s => s.mediaType !== 'none').map((s, i) => (
+                                    <div key={i} className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+                                      <div className={`aspect-[9/16] bg-black rounded-[2.5rem] overflow-hidden shadow-2xl ${i % 2 === 1 ? 'md:order-last' : ''}`}>
+                                        {s.mediaType === 'video' ? <video src={s.mediaData} muted autoPlay loop className="w-full h-full object-cover" /> : <img src={s.mediaData} className="w-full h-full object-cover" />}
+                                      </div>
+                                      <div className="prose prose-gray max-w-none leading-loose text-gray-600" dangerouslySetInnerHTML={{ __html: s.articleContent }} />
+                                    </div>
+                                  ))}
+                                  
+                                  <section className="pt-20 border-t border-gray-100">
+                                    <h3 className="text-sm font-bold text-gray-400 uppercase tracking-[0.2em] mb-12 text-center italic">Requirements</h3>
+                                    <div className="bg-gray-50 rounded-3xl p-12">
+                                      <div className="prose prose-gray max-w-none text-gray-700" dangerouslySetInnerHTML={{ __html: editingJob.requirements }} />
+                                      <div className="grid grid-cols-2 gap-12 mt-12 pt-12 border-t border-gray-200">
+                                        <div>
+                                          <dt className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">給与</dt>
+                                          <dd className="text-gray-900 font-medium">{editingJob.salary}</dd>
+                                        </div>
+                                        <div>
+                                          <dt className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">勤務地</dt>
+                                          <dd className="text-gray-900 font-medium">{editingJob.location}</dd>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </section>
+                               </div>
+                            </div>
+                          )}
                         </div>
                       </div>
                     ) : (
@@ -304,13 +368,23 @@ const AdminDashboard: React.FC = () => {
                               ))}
                             </div>
                           </div>
+                          <div className="grid grid-cols-2 gap-4">
+                            <div>
+                              <label className="block text-[10px] font-bold text-gray-400 uppercase mb-2">ステータス</label>
+                              <select className="w-full px-4 py-3 bg-gray-50 rounded-xl" value={editingJob.status} onChange={e => setEditingJob({...editingJob, status: e.target.value as any})}>
+                                <option value="募集中">募集中</option>
+                                <option value="選考中">選考中</option>
+                                <option value="募集終了">募集終了</option>
+                              </select>
+                            </div>
+                            <div>
+                              <label className="block text-[10px] font-bold text-gray-400 uppercase mb-2">勤務地（簡易表示用）</label>
+                              <input type="text" className="w-full px-4 py-3 bg-gray-50 rounded-xl" value={editingJob.location} onChange={e => setEditingJob({...editingJob, location: e.target.value})} />
+                            </div>
+                          </div>
                           <div>
-                            <label className="block text-[10px] font-bold text-gray-400 uppercase mb-2">ステータス</label>
-                            <select className="w-full px-4 py-3 bg-gray-50 rounded-xl" value={editingJob.status} onChange={e => setEditingJob({...editingJob, status: e.target.value as any})}>
-                              <option value="募集中">募集中</option>
-                              <option value="選考中">選考中</option>
-                              <option value="募集終了">募集終了</option>
-                            </select>
+                            <label className="block text-[10px] font-bold text-gray-400 uppercase mb-2">給与（簡易表示用）</label>
+                            <input type="text" className="w-full px-4 py-3 bg-gray-50 rounded-xl" value={editingJob.salary} onChange={e => setEditingJob({...editingJob, salary: e.target.value})} />
                           </div>
                           <div>
                             <label className="block text-[10px] font-bold text-gray-400 uppercase mb-2">1. 惹きつけるメッセージ (HTML可)</label>

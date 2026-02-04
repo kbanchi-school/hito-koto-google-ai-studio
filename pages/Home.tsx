@@ -114,18 +114,20 @@ const Home: React.FC = () => {
         
         {/* Hero Content */}
         <div className="relative z-10 text-center text-white px-4">
-          <h1 className="text-7xl md:text-8xl font-serif-jp font-light tracking-[0.4em] mb-12 animate-fadeIn">
+          <h1 className="text-2xl sm:text-6xl md:text-8xl font-serif-jp font-light tracking-[0.1em] sm:tracking-[0.4em] mb-12 animate-fadeIn whitespace-nowrap">
             h i t o - k o t o
           </h1>
-          <p className="text-lg md:text-xl font-serif-jp font-extralight tracking-[0.6em] opacity-90 animate-fadeInDelay">
+          <p className="text-sm sm:text-lg md:text-xl font-serif-jp font-extralight tracking-[0.3em] sm:tracking-[0.6em] opacity-90 animate-fadeInDelay">
             働くヒトの空気、シゴトを綴る
           </p>
         </div>
 
-        {/* Scroll Indicator */}
-        <div className="absolute bottom-12 left-1/2 -translate-x-1/2 flex flex-col items-center animate-bounce">
-          <span className="text-[10px] text-white/50 uppercase tracking-widest mb-4">Scroll to discover</span>
-          <div className="w-[1px] h-12 bg-white/20"></div>
+        {/* Scroll Indicator - Fixed centering by wrapping the animation */}
+        <div className="absolute bottom-12 left-1/2 -translate-x-1/2 z-20">
+          <div className="flex flex-col items-center animate-bounce">
+            <span className="text-[10px] text-white/50 uppercase tracking-[0.3em] mb-4 font-light whitespace-nowrap">Scroll to discover</span>
+            <div className="w-[1px] h-12 bg-white/20"></div>
+          </div>
         </div>
       </section>
 
